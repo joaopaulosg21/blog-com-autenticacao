@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 import aprendendo.api.blog.auth.service.TokenService;
 import aprendendo.api.blog.entities.User;
 import aprendendo.api.blog.entities.DTO.LoginDTO;
+import aprendendo.api.blog.entities.DTO.PostDTO;
 import aprendendo.api.blog.entities.DTO.TokenDTO;
 import aprendendo.api.blog.entities.DTO.UserDTO;
 import aprendendo.api.blog.exceptions.user.EmailUsedException;
+import aprendendo.api.blog.repository.PostRepository;
 import aprendendo.api.blog.repository.UserRepository;
 
 @Service
@@ -28,6 +30,9 @@ public class UserService {
 
     @Autowired
     TokenService tokenService;
+
+    @Autowired
+    PostRepository postRepository;
 
     public UserDTO addUser(User user) {
         Optional<User> verify = userRepository.findByEmail(user.getEmail());
@@ -48,5 +53,10 @@ public class UserService {
 
     public List<UserDTO> findAll() {
         return userRepository.findAll().stream().map(x -> x.toDTO()).toList();
+    }
+
+    public List<PostDTO> findMyPosts(String token) {
+        Long id = tokenService.getId(token);
+        return postRepository.findAllByUser(id).stream().map(x -> x.toDTO()).toList();
     }
 }
